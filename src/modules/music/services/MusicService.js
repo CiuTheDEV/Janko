@@ -72,18 +72,27 @@ class MusicService {
                 author: track.author,
                 duration: track.duration,
                 channel: queue.channel.name,
+                volume: queue.node.volume,
                 user: user ? user.toString() : 'Nieznany podróżnik',
                 queueInfo: queue.tracks.size > 0 ? `+ ${queue.tracks.size} kolejnych pieśni` : '_Kolejka pusta_'
             };
 
             const ui = uiEngine.render('BARD.PLAYER', renderData, {
-                // Przyciski odtwarzacza
+                // Przyciski odtwarzacza (wielorzędowe)
                 buttons: [
-                    { id: 'music_pause', label: '⏸️/▶️', style: 'SECONDARY' },
-                    { id: 'music_skip', label: '⏭️ Skip', style: 'PRIMARY' },
-                    { id: 'music_stop', label: '⏹️ Stop', style: 'DANGER' },
-                    { id: 'music_queue', label: '📜 Kolejka', style: 'SECONDARY' },
-                    { id: 'music_add', label: '➕ Dodaj', style: 'SUCCESS' }
+                    // Rząd 1: Kontrola odtwarzania
+                    [
+                        { id: 'music_pause', label: '⏸️/▶️', style: 'SECONDARY' },
+                        { id: 'music_skip', label: '⏭️ Skip', style: 'PRIMARY' },
+                        { id: 'music_stop', label: '⏹️ Stop', style: 'DANGER' },
+                        { id: 'music_queue', label: '📜 Kolejka', style: 'SECONDARY' },
+                        { id: 'music_add', label: '➕ Dodaj', style: 'SUCCESS' }
+                    ],
+                    // Rząd 2: Kontrola głośności
+                    [
+                        { id: 'music_vol_down', label: '🔉 Głośność -', style: 'SECONDARY' },
+                        { id: 'music_vol_up', label: '🔊 Głośność +', style: 'SECONDARY' }
+                    ]
                 ],
                 thumbnail: track.thumbnail
             });

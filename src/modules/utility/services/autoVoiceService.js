@@ -87,9 +87,17 @@ class AutoVoiceService {
                 newLeader: `<@${newOwner.id}>`
             }, { type: 'INFO' });
 
-            await channel.send({
+            const payload = {
+                content: `Witaj <@${newOwner.id}>! Przejąłeś władzę nad komnatą. Oto Twój panel sterowania:`,
                 ...embed,
                 components: [actionRow, actionRow2]
+            };
+
+            // Próbuj wysłać na kanał (Text-in-Voice), a jeśli zawiedzie - do DM
+            await channel.send(payload).catch(async () => {
+                await newOwner.send(payload).catch(() => {
+                    console.warn(` [AutoVoice] Nie udało się dostarczyć panelu do ${newOwner.user.tag}`);
+                });
             });
 
         } catch (error) {
@@ -193,10 +201,17 @@ class AutoVoiceService {
                     .setStyle(ButtonStyle.Success)
             );
 
-            await newChannel.send({
-                content: `Witaj <@${member.id}>! Twoja komnata jest gotowa.`,
+            const payload = {
+                content: `Witaj <@${member.id}>! Twoja komnata jest gotowa. Oto Twój panel sterowania:`,
                 ...panel,
                 components: [actionRow, actionRow2]
+            };
+
+            // Próbuj wysłać na kanał (Text-in-Voice), a jeśli zawiedzie - do DM
+            await newChannel.send(payload).catch(async () => {
+                await member.send(payload).catch(() => {
+                    console.warn(` [AutoVoice] Nie udało się dostarczyć panelu powitalnego do ${member.user.tag}`);
+                });
             });
 
         } catch (error) {

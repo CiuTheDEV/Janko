@@ -1,4 +1,4 @@
-const { MessageFlags } = require('discord.js');
+const { MessageFlags, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const musicService = require('../services/MusicService');
 const uiEngine = require('../../../core/uiEngine');
 
@@ -53,8 +53,78 @@ module.exports = [
     {
         customId: 'music_add',
         async execute(interaction) {
-            // W przyszłości: Modal do wpisania nowej pieśni
-            await interaction.reply({ content: 'Ta funkcja będzie dostępna wkrótce! Użyj `/bard <pieśń>`, aby dodać kolejny utwór.', flags: [MessageFlags.Ephemeral] });
+            const modal = new ModalBuilder()
+                .setCustomId('music_add_modal')
+                .setTitle('Dodaj nową pieśń');
+
+            const queryInput = new TextInputBuilder()
+                .setCustomId('music_query')
+                .setLabel('Nazwa utworu lub link')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('np. Sleepcycle Medieval Music')
+                .setRequired(true);
+
+            modal.addComponents(new ActionRowBuilder().addComponents(queryInput));
+            await interaction.showModal(modal);
+        }
+    },
+    {
+        customId: 'music_add_modal',
+        async execute(interaction) {
+            const query = interaction.fields.getTextInputValue('music_query');
+            await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+
+            try {
+                const queue = musicService.player.nodes.get(interaction.guildId);
+                if (!queue) {
+                    return interaction.editReply('Najpierw wezwij Barda Janko używając `/bard`!');
+                }
+
+                const result = await musicService.player.search(query, {
+                    requestedBy: interaction.user
+                });
+
+                if (!result || !result.tracks.length) {
+                    return interaction.editReply('Nie znalazłem takiej pieśni...');
+                }
+
+                const track = result.tracks[0];
+                queue.addTrack(track);
+
+                await interaction.editReply(`✅ Dodano do kolejki: **${track.title}**`);
+                musicService.updateDashboard(queue, queue.currentTrack);
+            } catch (error) {
+                console.error(' [MUSIC] Błąd dodawania utworu:', error);
+                await interaction.editReply('Wystąpił błąd podczas dodawania pieśni.');
+            }
+        }
+    },
+    {
+        customId: 'music_vol_up',
+        async execute(interaction) {
+            const queue = musicService.player.nodes.get(interaction.guildId);
+            if (!queue) return interaction.reply({ content: 'Nic nie gra!', flags: [MessageFlags.Ephemeral] });
+
+            const currentVol = queue.node.volume;
+            const newVol = Math.min(currentVol + 10, 100);
+            queue.node.setVolume(newVol);
+            
+            await interaction.deferUpdate();
+            musicService.updateDashboard(queue, queue.currentTrack);
+        }
+    },
+    {
+        customId: 'music_vol_down',
+        async execute(interaction) {
+            const queue = musicService.player.nodes.get(interaction.guildId);
+            if (!queue) return interaction.reply({ content: 'Nic nie gra!', flags: [MessageFlags.Ephemeral] });
+
+            const currentVol = queue.node.volume;
+            const newVol = Math.max(currentVol - 10, 0);
+            queue.node.setVolume(newVol);
+            
+            await interaction.deferUpdate();
+            musicService.updateDashboard(queue, queue.currentTrack);
         }
     }
 ];

@@ -113,7 +113,6 @@ Implemented and fully stabilized.
 
 - `System Undo`
 - `Human-First verification`
-- `CaseFile`
 - full role/channel change monitoring
 
 ## 4. Current documentation and technical priorities

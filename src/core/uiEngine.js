@@ -44,19 +44,33 @@ class UIEngine {
             files: options.files || []
         };
 
-        // Obsługa przycisków z opcji
+        // Obsługa przycisków z opcji (pojedynczy rząd lub wiele rzędów)
         if (options.buttons && Array.isArray(options.buttons)) {
-            const row = new ActionRowBuilder();
-            options.buttons.forEach(btn => {
-                row.addComponents(
-                    new ButtonBuilder()
-                        .setCustomId(btn.id)
-                        .setLabel(btn.label)
-                        .setStyle(ButtonStyle[btn.style] || ButtonStyle.Primary)
-                        .setDisabled(!!btn.disabled)
-                );
-            });
-            message.components.push(row);
+            const createRow = (btns) => {
+                const row = new ActionRowBuilder();
+                btns.forEach(btn => {
+                    row.addComponents(
+                        new ButtonBuilder()
+                            .setCustomId(btn.id)
+                            .setLabel(btn.label)
+                            .setStyle(ButtonStyle[btn.style] || ButtonStyle.Primary)
+                            .setDisabled(!!btn.disabled)
+                    );
+                });
+                return row;
+            };
+
+            // Sprawdzamy czy przekazano wiele rzędów (tablica tablic)
+            if (Array.isArray(options.buttons[0]?.buttons || options.buttons[0])) {
+                // Jeśli pierwsza pozycja to tablica lub obiekt z kluczem buttons, traktujemy jako rzędy
+                options.buttons.forEach(rowGroup => {
+                    const btns = Array.isArray(rowGroup) ? rowGroup : rowGroup.buttons;
+                    if (btns.length > 0) message.components.push(createRow(btns));
+                });
+            } else {
+                // Pojedynczy rząd
+                message.components.push(createRow(options.buttons));
+            }
         }
 
         if (ephemeral) {

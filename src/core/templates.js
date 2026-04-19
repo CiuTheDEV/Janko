@@ -361,7 +361,7 @@ module.exports = {
         THUMBNAIL: 'attachment://bard_avatar.png',
         
         PLAYER_TITLE: '🎵 Teraz wybrzmiewa: {title}',
-        PLAYER_DESC: 'Bardska pieśń płynie przez kanał **{channel}**.\n\n• **Autor:** {author}\n• **Czas trwania:** {duration}\n• **Zleceniodawca:** {user}\n\n{queueInfo}',
+        PLAYER_DESC: 'Bardska pieśń płynie przez kanał **{channel}**.\n\n• **Autor:** {author}\n• **Czas trwania:** {duration}\n• **Głośność:** `{volume}%`\n• **Zleceniodawca:** {user}\n\n{queueInfo}',
         
         PLAYER_STOPPED_TITLE: '⏹️ Pieśń dobiegła końca',
         PLAYER_STOPPED_DESC: 'Bard Janko odłożył lutnię. Cisza zapadła w grodzie.',
