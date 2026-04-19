@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 
 /**
- * Klasa zarządzająca połączeniem z bazą danych (Natywna Prisma 7)
+ * Klasa zarządzająca połączeniem z bazą danych (Natywna Prisma 6)
  */
 class Database {
     constructor() {

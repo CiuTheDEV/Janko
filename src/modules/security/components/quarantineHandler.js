@@ -54,8 +54,14 @@ module.exports = [
                 await member.ban({ reason: `Kwarantanna odrzucona przez ${interaction.user.tag}` });
             }
 
-            const { uiEngine } = require('../../../core/uiEngine');
-            const response = require('../../../core/uiEngine').render('SECURITY.REJECTED', { user: member ? member.user.tag : userId });
+            const db = require('../../../core/database');
+            await db.prisma.quarantineSession.updateMany({
+                where: { guildId: interaction.guild.id, userId: userId, status: 'ACTIVE' },
+                data: { status: 'REJECTED' }
+            });
+
+            const uiEngine = require('../../../core/uiEngine');
+            const response = uiEngine.render('SECURITY.REJECTED', { user: member ? member.user.tag : userId });
             
             // Disable buttons
             await interaction.editReply({ components: [] });

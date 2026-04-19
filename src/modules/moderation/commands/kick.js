@@ -36,6 +36,8 @@ module.exports = {
         }
 
         try {
+            await target.kick(`${interaction.user.tag}: ${reason}`);
+
             await modService.addInfraction({
                 guild: interaction.guild,
                 user: targetUser,
@@ -43,8 +45,6 @@ module.exports = {
                 type: 'KICK',
                 reason: reason
             });
-
-            await target.kick(`${interaction.user.tag}: ${reason}`);
 
             await interaction.editReply(uiEngine.render('MODERATION.KICK', {
                 user: targetUser.tag,

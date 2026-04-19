@@ -42,17 +42,17 @@ module.exports = {
         }
 
         try {
+            await interaction.guild.members.ban(targetUser.id, { 
+                reason: `${interaction.user.tag}: ${reason}`,
+                deleteMessageSeconds: deleteDays * 24 * 60 * 60
+            });
+
             await modService.addInfraction({
                 guild: interaction.guild,
                 user: targetUser,
                 moderator: interaction.user,
                 type: 'BAN',
                 reason: reason
-            });
-
-            await interaction.guild.members.ban(targetUser.id, { 
-                reason: `${interaction.user.tag}: ${reason}`,
-                deleteMessageSeconds: deleteDays * 24 * 60 * 60
             });
 
             await interaction.editReply(uiEngine.render('MODERATION.BAN', {
