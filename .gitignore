@@ -1,0 +1,57 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env
+.env.test
+.env.production
+.env.local
+.env.*.local
+
+# External tool backups
+*.bak
+*.swp
+
+# IDEs
+.vscode/
+.idea/
+
+# Prisma
+/src/generated/prisma/
+prisma/dev.db
+prisma/dev.db-journal
+
+# Janko Bot Specific
+artifacts/
+.temp/
+temp/
+
+# Agent Memory (Tracked for AI collaboration)

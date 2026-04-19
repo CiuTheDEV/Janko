@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model GuildConfig {
+  guildId             String   @id
+  prefix              String   @default("!")
+  welcomeCh           String?
+  leaveCh             String?
+  logsCh              String?
+  modRole             String?
+  adminRole           String?
+  welcomeMsg          String   @default("Witaj {user} w królestwie {guild}!")
+  leaveMsg            String   @default("{user} opuścił nasze mury... Poległ w Walce.")
+  welcomeEnabled      Boolean  @default(true)
+  leaveEnabled        Boolean  @default(true)
+  welcomeImageEnabled Boolean  @default(true)
+  leaveImageEnabled   Boolean  @default(true)
+  welcomeType         String   @default("EMBED")
+  leaveType           String   @default("EMBED")
+  notifyWarn          Boolean  @default(true)
+  notifyTimeout       Boolean  @default(true)
+  notifyUntimeout     Boolean  @default(true)
+  notifyKick          Boolean  @default(true)
+  notifyBan           Boolean  @default(true)
+  notifyType          String   @default("TEXT")
+  // Auto-Voice
+  autoVoiceEnabled    Boolean  @default(false)
+  autoVoiceCh         String?
+  autoVoiceCategory   String?
+  // Watchtower Settings
+  watchtowerLogMessages Boolean @default(true)
+  watchtowerLogMembers  Boolean @default(true)
+  watchtowerLogChannels Boolean @default(true)
+  watchtowerLogRoles    Boolean @default(true)
+  watchtowerLogSpam     Boolean @default(true)
+  // Quarantine Settings
+  quarantineRoleId      String?
+  quarantineLogsCh      String?
+  quarantineThresholdDays Int @default(7)
+  // Music Settings
+  musicDjRole         String?
+  musicVolume         Int      @default(50)
+  lastSecurityAudit     DateTime?
+  updatedAt           DateTime @updatedAt
+}
+
+model QuarantineSession {
+  id        Int      @id @default(autoincrement())
+  guildId   String
+  userId    String
+  reason    String
+  status    String   @default("ACTIVE") // ACTIVE, APPROVED, REJECTED
+  createdAt DateTime @default(now())
+
+  @@index([guildId, userId])
+}
+
+model UserInfraction {
+  id          Int            @id @default(autoincrement())
+  guildId     String
+  userId      String
+  moderatorId String
+  type        InfractionType
+  duration    Int? // czas w minutach (dla timeoutów)
+  reason      String         @default("Brak powodu")
+  createdAt   DateTime       @default(now())
+
+  @@index([guildId, userId])
+}
+
+enum InfractionType {
+  WARN
+  TIMEOUT
+  UNTIMEOUT
+  KICK
+  BAN
+}
+
+model Reminder {
+  id                Int      @id @default(autoincrement())
+  guildId           String
+  userId            String
+  channelId         String
+  content           String
+  targets           String?  @db.Text // JSON list of {id, type}
+  confirmationMsgId String?
+  status            String   @default("ACTIVE")
+  deliveryType      String   @default("BOTH")
+  messageType       String   @default("EMBED")
+  imageUrl          String?
+  duration          String?
+  remindAt          DateTime?
+  createdAt         DateTime @default(now())
+
+  @@index([guildId])
+  @@index([remindAt])
+}
+
+model UserVoiceSettings {
+  userId     String
+  guildId    String
+  name       String?
+  userLimit  Int?      @default(0)
+  isLocked   Boolean   @default(false)
+  updatedAt  DateTime  @updatedAt
+
+  @@id([userId, guildId])
+}
+
+model UserAuditEntry {
+  id        Int      @id @default(autoincrement())
+  guildId   String
+  userId    String
+  type      String   // JOIN, LEAVE, AVATAR_CHANGE, ROLES_SNAPSHOT
+  data      String?  @db.Text // JSON data
+  createdAt DateTime @default(now())
+
+  @@index([guildId, userId])
+}
+
+model NicknameHistory {
+  id          Int      @id @default(autoincrement())
+  guildId     String
+  userId      String
+  oldNickname String?
+  newNickname String?
+  createdAt   DateTime @default(now())
+
+  @@index([guildId, userId])
+}
+
+model ServerSnapshot {
+  id          Int      @id @default(autoincrement())
+  guildId     String
+  creatorId   String
+  name        String?
+  data        String   @db.LongText // JSON structure
+  createdAt   DateTime @default(now())
+
+  @@index([guildId])
+}
+
+model TemporalRole {
+  id        Int      @id @default(autoincrement())
+  guildId   String
+  userId    String
+  roleId    String
+  expiresAt DateTime
+  notifyUser Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([guildId, userId])
+  @@index([expiresAt])
+}
